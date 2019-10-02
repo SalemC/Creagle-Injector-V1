@@ -1,13 +1,12 @@
-// Functional
 #include "Injector.hpp"
 
 void Injector::Log(std::string msg, int time, bool error) {
 	std::cout << msg << std::endl;
 
-	// Sleep with our provided time so the user can see the exit message
+	// Sleep with our provided time so the user can see the exit message.
 	Sleep(time);
 
-	// Exit our program if we've errored
+	// Exit our program if an error has occured.
 	if (error) {
 		exit(1);
 	}
@@ -38,14 +37,14 @@ DWORD Injector::OpenHandle() {
 
 	CloseHandle(Handle);
 
-	// We've looped through all processes and haven't found our target
+	// We've looped through all processes and haven't found our target.
 	Log("Process isn't running!", 1000, true);
 
-	// This will never occur because CloseProgram exits the program
+	// This will never occur because Log will exit the program.
 	return 0;
 }
 
-void Injector::Inject() {
+static void Injector::Inject() {
 	GetFullPathName(fileName.c_str(), MAX_PATH, dllPath, 0);
 
 	auto handle = OpenHandle();
@@ -63,6 +62,6 @@ void Injector::Inject() {
 	CreateRemoteThread(process, 0, 0, (LPTHREAD_START_ROUTINE)LoadLibrary, allocatedMemory, 0, 0);
 
 	if (CloseHandle(process)) {
-		Log("Successfully Injected!", 1000, false);
+		Log("Successfully Injected!", 1000);
 	}
 }

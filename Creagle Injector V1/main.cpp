@@ -1,14 +1,11 @@
 #pragma once
-// C++
+
 #include <Windows.h>
 
-// Functional
 #include "Injector.hpp"
 
 int main() {
-	Injector injector;
-
-	injector.Inject();
+	Injector::Inject();
 
 	return 0;
 }
