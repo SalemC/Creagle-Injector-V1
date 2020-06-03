@@ -7,7 +7,7 @@
 int main() {
 	auto injector = new Injector();
 	
-	injector.Inject();
+	injector->Inject();
 
 	return 0;
 }
