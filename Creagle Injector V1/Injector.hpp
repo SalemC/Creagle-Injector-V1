@@ -48,5 +48,5 @@ public:
 	/*
 	 * @brief Inject the target dll into target process.
 	 */
-	static void Inject();
+	void Inject();
 };
