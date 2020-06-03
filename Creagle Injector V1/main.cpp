@@ -5,7 +5,9 @@
 #include "Injector.hpp"
 
 int main() {
-	Injector::Inject();
+	auto injector = new Injector();
+	
+	injector.Inject();
 
 	return 0;
 }
