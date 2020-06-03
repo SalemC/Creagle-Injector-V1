@@ -44,7 +44,7 @@ DWORD Injector::OpenHandle() {
 	return 0;
 }
 
-static void Injector::Inject() {
+void Injector::Inject() {
 	GetFullPathName(fileName.c_str(), MAX_PATH, dllPath, 0);
 
 	auto handle = OpenHandle();
