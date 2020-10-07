@@ -13,21 +13,18 @@ private:
 	 *
 	 * @param {std::string} msg - The message to log.
 	 * @param {int} time - The time to wait.
-	 * @param {bool} error - Have we called this because of an error?
-	 *
-	 * @note Exits the program if error == true.
 	 */
-	void Log(std::string msg, int time, bool error = false);
+	void log(std::string msg, int time = 0);
 
 	/*
 	 * @brief Check if our target dll exists in our current directory.
 	 */
-	bool Exists();
+	bool exists();
 
 	/*
 	 * @brief Open a handle to our target process.
 	 */
-	DWORD OpenHandle();
+	DWORD openHandle();
 
 	/**
 	 * @brief The target file to inject.
@@ -48,5 +45,5 @@ public:
 	/*
 	 * @brief Inject the target dll into target process.
 	 */
-	void Inject();
+	void inject();
 };
