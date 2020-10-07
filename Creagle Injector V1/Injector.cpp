@@ -1,67 +1,64 @@
 #include "Injector.hpp"
 
-void Injector::Log(std::string msg, int time, bool error) {
+void Injector::log(std::string msg, int time) {
 	std::cout << msg << std::endl;
 
-	// Sleep with our provided time so the user can see the exit message.
-	Sleep(time);
-
-	// Exit our program if an error has occured.
-	if (error) {
-		exit(1);
+	if (time > 0) {
+		Sleep(time);
 	}
 }
 
-bool Injector::Exists() {
+bool Injector::exists() {
 	struct stat buffer;
 
-	return (stat(fileName.c_str(), &buffer) == 0);
+	return stat(this->fileName.c_str(), &buffer) == 0;
 }
 
-DWORD Injector::OpenHandle() {
-	auto Handle = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+DWORD Injector::openHandle() {
+	auto handle = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
 
 	PROCESSENTRY32 processEntry;
 
 	processEntry.dwSize = sizeof(processEntry);
 
-	while (Process32Next(Handle, &processEntry)) {
-		if (strcmp(processEntry.szExeFile, processName) == 0) {
+	while (Process32Next(handle, &processEntry)) {
+		if (strcmp(processEntry.szExeFile, this->processName) == 0) {
 			auto processID = processEntry.th32ProcessID;
 
-			CloseHandle(Handle);
+			CloseHandle(handle);
 
 			return processID;
 		}
 	}
 
-	CloseHandle(Handle);
+	CloseHandle(handle);
 
 	// We've looped through all processes and haven't found our target.
-	Log("Process isn't running!", 1000, true);
+	this->log("Process isn't running!", 1000);
 
-	// This will never occur because Log will exit the program.
-	return 0;
+	exit(1);
 }
 
-void Injector::Inject() {
-	GetFullPathName(fileName.c_str(), MAX_PATH, dllPath, 0);
+void Injector::inject() {
+	GetFullPathName(this->fileName.c_str(), MAX_PATH, this->dllPath, 0);
 
-	auto handle = OpenHandle();
+	auto handle = this->openHandle();
 
-	if (!Exists()) {
-		Log("File doesn't exist!", 1000, true);
+	if (!this->exists()) {
+		this->log("File doesn't exist!", 1000);
+
+		exit(1);
 	}
 
 	auto process = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_VM_OPERATION, FALSE, handle);
 
-	auto allocatedMemory = VirtualAllocEx(process, NULL, sizeof(dllPath), MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+	auto allocatedMemory = VirtualAllocEx(process, NULL, sizeof(this->dllPath), MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
-	WriteProcessMemory(process, allocatedMemory, dllPath, sizeof(dllPath), NULL);
+	WriteProcessMemory(process, allocatedMemory, this->dllPath, sizeof(this->dllPath), NULL);
 
-	CreateRemoteThread(process, 0, 0, (LPTHREAD_START_ROUTINE)LoadLibrary, allocatedMemory, 0, 0);
+	CreateRemoteThread(process, 0, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(LoadLibrary), allocatedMemory, 0, 0);
 
 	if (CloseHandle(process)) {
-		Log("Successfully Injected!", 1000);
+		this->log("Successfully Injected!", 1000);
 	}
 }
